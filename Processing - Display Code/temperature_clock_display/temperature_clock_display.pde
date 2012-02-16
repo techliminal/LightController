@@ -5,6 +5,8 @@ import processing.serial.*;
 Serial myPort;  // The serial port
 String message = "";
 String data = "";
+String data1 = "";
+String data2 = "";
 int msgFlag = 0;
 int index = 0;
 
@@ -49,8 +51,9 @@ void draw() {
     if (message.substring(0,1).equals("?") && message.substring(message.length()-1, message.length()).equals("%")) { // well formed message check
        data = message.substring(1,message.length()-1);
        println(data);
+       
        message = "";
-       msgFlag = 1;
+       msgFlag = 0;
      }
     } else {
          data = ""; // bad message

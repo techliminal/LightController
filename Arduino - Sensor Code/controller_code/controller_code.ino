@@ -7,38 +7,74 @@ http://creativecommons.org/license/cc-gpl
 
 This program reads the output of an LM35 Temperature sensor and then transmites of a serial connection
 */
-int pin = 0; // analog pin
-float tempc = 0,tempf=0; // temperature variables
-float samples[8]; // variables to make a better precision
-int i;
+int   sensorPin = 0; // analog sensor (photoresistor) input pin
+int   rangerPin = 1; // analog sensor (proximity sensor) input pin
+int   ledRed    = 9; // red LED PWM pin
+int   ledGreen  = 10; // green LED pin
+int   ledBlue   = 11; // blue LED pin
+float lightVal = 0, rangeVal = 0;
+float lightSamples[8]; // variables to make a better precision
+float rangeSamples[8]; 
+int i; // loop counter
 
 void setup()
 {
+    pinMode(ledRed, OUTPUT);
+    pinMode(ledGreen, OUTPUT);
+    pinMode(ledBlue, OUTPUT);
+    
     Serial.begin(9600); // start serial communication
 }
 
 void loop()
 {
-    // tempc = 10; // Insert Analog Read code here
     
-    for(i = 0;i<= 7;i++){ // gets 8 samples of temperature
+    for(i = 0;i<= 7;i++){ // gets 8 samples of voltage
       // System Volatge is 5V
       // Analog read max ouput is 1024 units
       // Therefore 4.9mV/unit
-      // LM35 has a linear scale of 10mV/degC
-      samples[i] = (analogRead(pin)*(5.0/1024) * 100); 
-      tempc = tempc + samples[i]; 
+      lightSamples[i] = (analogRead(sensorPin)*(3.0/1024) * 100);  // ??
+      rangeSamples[i] = (analogRead(rangerPin)*(3.0/1024) * 100);  // ??
+
+      lightVal = lightVal + lightSamples[i]; 
+      rangeVal = rangeVal + rangeSamples[i];
       delay(5);
     }
-    tempc = tempc/8.0; // better precision
-    
-    tempf = (tempc * 9)/ 5 + 32; // converts to fahrenheit
-    
+    lightVal = lightVal/8.0; // better precision
+    rangeVal = rangeVal/8.0; // better precision
+        
     Serial.print("?");
-    Serial.print(tempf);
+    Serial.print(lightVal);
+    Serial.print(",");
+    Serial.print(rangeVal);
     Serial.print("%");
     
-    tempc = 0.0; // reset temp varible 
-    delay(20); // delay before loop
+    // change the LED values
+    
+    set_led(rangeVal);
+    
+    lightVal = 0.0; // reset voltage varible 
+    rangeVal = 0.0; // reset voltage varible 
+
+    delay(50); // delay before loop
 }
 
+void set_led(float inputVal){
+ 
+  if (inputVal > 255){
+     inputVal = 255; 
+    analogWrite(ledRed, HIGH);
+    analogWrite(ledGreen, HIGH);
+    analogWrite(ledBlue, HIGH);
+  } else if (inputVal > 128){
+    analogWrite(ledRed, HIGH/2);
+    analogWrite(ledGreen, HIGH/2);
+    analogWrite(ledBlue, HIGH/2);
+     
+   
+  } else {
+    analogWrite(ledRed, inputVal);
+    analogWrite(ledGreen, inputVal);
+    analogWrite(ledBlue, inputVal);
+  }
+}
