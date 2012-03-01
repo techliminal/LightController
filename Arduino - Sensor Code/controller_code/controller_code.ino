@@ -44,14 +44,18 @@ void loop()
     rangeVal = rangeVal/8.0; // better precision
         
     Serial.print("?");
-    Serial.print(lightVal);
-    Serial.print(",");
+    /*Serial.print(lightVal);
+    Serial.print(",");*/
     Serial.print(rangeVal);
     Serial.print("%");
     
     // change the LED values
     
-    set_led(rangeVal);
+    if (lightVal < 100){
+      set_led(rangeVal);
+    }  else {
+       set_red(HIGH); 
+    }
     
     lightVal = 0.0; // reset voltage varible 
     rangeVal = 0.0; // reset voltage varible 
@@ -77,4 +81,10 @@ void set_led(float inputVal){
     analogWrite(ledGreen, inputVal);
     analogWrite(ledBlue, inputVal);
   }
+}
+
+void set_red(float value){
+   analogWrite(ledRed, value);
+  analogWrite(ledGreen, LOW);
+   analogWrite(ledBlue, LOW); 
 }
